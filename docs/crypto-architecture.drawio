@@ -1,10 +1,10 @@
 <mxfile host="65bd71144e">
     <diagram name="Page-1" id="0">
-        <mxGraphModel dx="1593" dy="1169" grid="1" gridSize="8" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="816" pageHeight="992" background="#FFFFFF" math="1" shadow="0">
+        <mxGraphModel dx="768" dy="454" grid="1" gridSize="8" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="816" pageHeight="992" background="#FFFFFF" math="1" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="52" value="" style="whiteSpace=wrap;html=1;strokeColor=none;" vertex="1" parent="1">
+                <mxCell id="52" value="" style="whiteSpace=wrap;html=1;strokeColor=none;" parent="1" vertex="1">
                     <mxGeometry width="816" height="1336" as="geometry"/>
                 </mxCell>
                 <mxCell id="2" value="Paso 1: Generación de llaves (en cada PC)" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#1E293B;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=10;container=0;" parent="1" vertex="1">
@@ -117,43 +117,43 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="7" value="PC1 genera: \(KeyPair(secp256r1) → Privada_A + Pública_A\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="7" value="&lt;b&gt;PC1 genera:&lt;/b&gt; \(KeyPair(secp256r1) → Privada_A + Pública_A\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="56" y="88" width="328" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="8" value="PC2 genera: \(KeyPair(secp256r1) → Privada_B + Pública_B\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="8" value="&lt;b&gt;PC2 genera:&lt;/b&gt; \(KeyPair(secp256r1) → Privada_B + Pública_B\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="432" y="88" width="328" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="9" value="PC1 envía Pública_A → TCP" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="9" value="&lt;b&gt;PC1&lt;/b&gt; envía Pública_A → TCP" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="120" y="336" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="10" value="PC2 envía Pública_B → TCP" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="10" value="&lt;b&gt;PC2&lt;/b&gt; envía Pública_B → TCP" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="552" y="320" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="TCP (no cifrado)" style="ellipse;shape=cloud;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="336" y="320" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="12" value="PC1:&amp;nbsp;&lt;div&gt;ECDH(Privada_A, Pública_B) → shared_secret (256 bits)&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="12" value="&lt;b&gt;PC1:&amp;nbsp;&lt;/b&gt;&lt;div&gt;ECDH(Privada_A, Pública_B) → shared_secret (256 bits)&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="52" y="560" width="336" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="PC2: ECDH(Privada_B, Pública_A) → shared_secret (256 bits)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="13" value="&lt;b&gt;PC2:&amp;nbsp;&lt;/b&gt;&lt;div&gt;ECDH(Privada_B, Pública_A) → shared_secret (256 bits)&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="428" y="560" width="336" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="PC1: \(HKDF(shared_secret) → AES_Key (256 bits)\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="14" value="&lt;b&gt;PC1:&lt;/b&gt; \(HKDF(shared_secret) → AES_Key (256 bits)\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="52" y="824" width="312" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="PC2: \(HKDF(shared_secret) → AES_Key (256 bits)\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="15" value="&lt;b&gt;PC2:&lt;/b&gt; \(HKDF(shared_secret) → AES_Key (256 bits)\)" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="456" y="824" width="312" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="16" value="PC1: texto plano &quot;Hola&quot;" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="176" y="1224" width="80" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="PC1:&amp;nbsp;&lt;div&gt;AES-256-GCM cipher.doFinal(&quot;Hola&quot;) → cifrado + tag&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="17" value="&lt;b&gt;PC1:&amp;nbsp;&lt;/b&gt;&lt;div&gt;AES-256-GCM cipher.doFinal(&quot;Hola&quot;) → cifrado + tag&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="50" y="1056" width="332" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="18" value="PC1 envía cifrado → TCP" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="348" y="1232" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" value="PC2:&amp;nbsp;&lt;div&gt;AES-256-GCM cipher.doFinal(cifrado) → &quot;Hola&quot; o error&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
+                <mxCell id="19" value="&lt;b&gt;PC2:&amp;nbsp;&lt;/b&gt;&lt;div&gt;AES-256-GCM cipher.doFinal(cifrado) → &quot;Hola&quot; o error&lt;/div&gt;" style="rounded=1;arcSize=20;html=1;whiteSpace=wrap;fillColor=#DBEAFE;strokeColor=#2563EB;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
                     <mxGeometry x="434" y="1056" width="332" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="20" value="PC2: texto plano &quot;Hola&quot;" style="shape=document;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;container=0;" parent="1" vertex="1">
