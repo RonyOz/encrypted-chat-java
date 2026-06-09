@@ -1,62 +1,47 @@
-# Chat cifrado en Java
+# Encrypted Chat Java
 
-Aplicación de consola para comunicar dos computadores mediante TCP. Al conectarse,
-las instancias generan claves efímeras ECDH sobre `secp256r1`, derivan una clave de
-256 bits con HKDF-SHA-256 y cifran todos los mensajes posteriores con AES-256-GCM.
+> Aplicacion de chat cifrado peer-to-peer con intercambio de claves ECDH y cifrado AES-256-GCM.
 
-No utiliza bibliotecas externas. Requiere JDK 11 o superior.
+[Informe completo →](docs/informe.md)
 
-## Compilar y probar
+## Descripcion
 
-```bash
-chmod +x scripts/*.sh
-./scripts/test.sh
-```
+Chat de consola en Java puro (sin dependencias externas) que permite a dos usuarios comunicarse de forma segura a traves de una red TCP. Implementa cifrado de extremo a extremo usando criptografia de curva eliptica y AES.
 
-El archivo distribuible queda en `build/encrypted-chat.jar`. Debe copiarse ese mismo
-archivo a los dos computadores.
+## Esquema de 
 
-## Ejecutar en dos computadores
+![Arquitectura criptografica](docs/crypto-architecture.png)
 
-En el computador que recibirá la conexión:
+## Caracteristicas
 
-```bash
-java -jar encrypted-chat.jar server --port 5050 --name Alicia
-```
+- **ECDH secp256r1** — Intercambio de claves mediante curva eliptica P-256
+- **AES-256-GCM** — Cifrado autenticado de mensajes (confidencialidad + integridad)
+- **HKDF-SHA-256** — Derivacion de claves segura (RFC 5869)
+- **Claves efimeras** — Perfect Forward Secrecy (PFS)
+- **Sin dependencias** — Solo utiliza el JDK estandar (Java 11+)
 
-En el otro computador, usando la dirección IP del primero:
+## Uso
 
 ```bash
-java -jar encrypted-chat.jar client --host 192.168.1.25 --port 5050 --name Bruno
+# Servidor
+java -jar encrypted-chat.jar server --port 5050 --name Alice
+
+# Cliente
+java -jar encrypted-chat.jar client --host 192.168.1.10 --port 5050 --name Bob
 ```
 
-El puerto TCP elegido debe estar permitido por el firewall del servidor. En una red
-local, ambos equipos deben poder alcanzarse entre sí. Para comunicar redes distintas
-se necesita una VPN o configurar el reenvío del puerto en el router.
+## Tests
 
-Escriba `/salir` para cerrar la sesión de manera ordenada.
+```bash
+java -cp encrypted-chat.jar com.encryptedchat.crypto.CryptoSelfTest
+```
 
-## Verificación de seguridad
+## Autores
 
-Ambas instancias muestran el mismo **código de seguridad** después del intercambio
-ECDH. Los usuarios deben compararlo por un canal distinto, por ejemplo una llamada.
-ECDH por sí solo no autentica a los participantes: si no se compara este código, un
-atacante activo en la red podría intentar un ataque de intermediario.
+- [Andres Bueno](https://github.com/AndresBueno420)
+- [Sebastián Erazo](https://github.com/Sebas41)
+- [Rony Ordoñez](https://github.com/RonyOz)
 
-## Protocolo implementado
+## Licencia
 
-1. Se abre una conexión TCP entre servidor y cliente.
-2. Cada instancia genera un par de claves EC efímero sobre `secp256r1`.
-3. Intercambian y validan las claves públicas codificadas como X.509.
-4. ECDH produce el secreto compartido.
-5. HKDF-SHA-256 usa el transcript de conexión como `salt` y deriva una clave AES de
-   32 bytes, es decir, 256 bits, además de una clave separada de confirmación.
-6. Ambos extremos confirman que derivaron la misma clave mediante HMAC-SHA-256.
-7. Nombres, mensajes y cierre se transmiten con AES-256-GCM y etiqueta de 128 bits.
-8. Cada dirección usa un espacio de `nonce` independiente y un contador de 64 bits.
-
-AES-GCM también verifica la integridad: una trama alterada, repetida o fuera de orden
-se rechaza y la sesión termina. Las claves son efímeras y no se guardan en disco.
-
-Más detalles técnicos están en [docs/diseno.md](docs/diseno.md).
-
+Proyecto academico.
