@@ -44,9 +44,9 @@ java -jar build/encrypted-chat.jar client --host 192.168.1.10 --port 5050 --name
 
 ## Autores
 
-- **Autor 1**
-- **Autor 2**
-- **Autor 3**
+- [Andres Bueno](https://github.com/AndresBueno420)
+- [Sebastián Erazo](https://github.com/Sebas41)
+- [Rony Ordoñez](https://github.com/RonyOz)
 
 ## Licencia
 
