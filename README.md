@@ -8,7 +8,7 @@
 
 Chat de consola en Java puro (sin dependencias externas) que permite a dos usuarios comunicarse de forma segura a traves de una red TCP. Implementa cifrado de extremo a extremo usando criptografia de curva eliptica y AES.
 
-## Esquema de 
+## Esquema de criptografía
 
 ![Arquitectura criptografica](docs/crypto-architecture.png)
 
@@ -20,27 +20,33 @@ Chat de consola en Java puro (sin dependencias externas) que permite a dos usuar
 - **Claves efimeras** — Perfect Forward Secrecy (PFS)
 - **Sin dependencias** — Solo utiliza el JDK estandar (Java 11+)
 
-## Uso
+## Compilacion
+
+```bash
+./scripts/build.sh
+```
+
+## Ejecucion
 
 ```bash
 # Servidor
-java -jar encrypted-chat.jar server --port 5050 --name Alice
+java -jar build/encrypted-chat.jar server --port 5050 --name Alice
 
 # Cliente
-java -jar encrypted-chat.jar client --host 192.168.1.10 --port 5050 --name Bob
+java -jar build/encrypted-chat.jar client --host 192.168.1.10 --port 5050 --name Bob
 ```
 
 ## Tests
 
 ```bash
-java -cp encrypted-chat.jar com.encryptedchat.crypto.CryptoSelfTest
+./scripts/test.sh
 ```
 
 ## Autores
 
-- [Andres Bueno](https://github.com/AndresBueno420)
-- [Sebastián Erazo](https://github.com/Sebas41)
-- [Rony Ordoñez](https://github.com/RonyOz)
+- **Autor 1**
+- **Autor 2**
+- **Autor 3**
 
 ## Licencia
 
