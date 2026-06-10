@@ -1,5 +1,6 @@
 package com.encryptedchat.observer;
 
+import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +22,7 @@ public final class SessionObserverApp {
     private static final String WHITE  = "[97m";
 
     public static void main(String[] args) throws Exception {
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         printBanner();
         try (DatagramSocket socket = new DatagramSocket(PORT)) {
             byte[] buf = new byte[BUF];

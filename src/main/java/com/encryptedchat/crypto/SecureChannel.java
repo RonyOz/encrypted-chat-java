@@ -224,14 +224,20 @@ public final class SecureChannel implements Closeable {
         }
         SecureMessage msg = new SecureMessage(type, decodeUtf8(payload));
 
+        long usedCounter = receiveCounter - 1;
+        ByteBuffer recvFrame = ByteBuffer.allocate(8 + 4 + encrypted.length);
+        recvFrame.putLong(usedCounter);
+        recvFrame.putInt(encrypted.length);
+        recvFrame.put(encrypted);
         emit(emitter, EventType.MSG_RECEIVED,
-                "counter", String.valueOf(receiveCounter - 1),
+                "counter", String.valueOf(usedCounter),
                 "msgType", type.name(),
                 "text", escapeJson(msg.getText()),
                 "nonce", UdpEventEmitter.hex(nonce),
                 "ciphertext", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, 0, encrypted.length - GCM_TAG_BYTES)),
                 "tag", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, encrypted.length - GCM_TAG_BYTES, encrypted.length)),
-                "plaintext", UdpEventEmitter.hexPlain(plaintext));
+                "plaintext", UdpEventEmitter.hexPlain(plaintext),
+                "frame", UdpEventEmitter.hexPlain(recvFrame.array()));
 
         return msg;
     }
