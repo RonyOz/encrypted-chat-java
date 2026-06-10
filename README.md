@@ -4,6 +4,8 @@
 
 [Informe completo →](docs/informe.md)
 
+![Diagrama de clases](docs/class-diagram.png)
+
 ## Descripcion
 
 Chat de consola en Java puro (sin dependencias externas) que permite a dos usuarios comunicarse de forma segura a traves de una red TCP. Implementa cifrado de extremo a extremo usando criptografia de curva eliptica y AES.
