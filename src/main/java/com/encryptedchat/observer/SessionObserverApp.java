@@ -168,10 +168,9 @@ public final class SessionObserverApp {
         System.out.println(BOLD + GREEN + "  |  Comparar con el otro usuario fuera de banda" + pad(4) + "|" + RESET);
         System.out.println(BOLD + GREEN + "  +" + repeat("-", 50) + "+" + RESET);
         System.out.println();
-        System.out.println(BOLD + YELLOW + repeat("-", 30) + "+" + repeat("-", 33) + RESET);
-        System.out.println(BOLD + "  VISTA CRIPTOGRAFICA" + pad(9) + YELLOW + "|" + RESET
-                + BOLD + "  VISTA DEL ATACANTE" + RESET);
-        System.out.println(BOLD + YELLOW + repeat("-", 30) + "+" + repeat("-", 33) + RESET);
+        System.out.println(BOLD + YELLOW + repeat("-", 64) + RESET);
+        System.out.println(BOLD + YELLOW + "  MENSAJES" + RESET);
+        System.out.println(BOLD + YELLOW + repeat("-", 64) + RESET);
     }
 
     private static void printAttacker(String label, String bytes) {
@@ -194,16 +193,30 @@ public final class SessionObserverApp {
         System.out.println();
         System.out.println(BOLD + "  #" + counter + " [" + role + "] " + dir + RESET
                 + BOLD + " [" + msgType + "]" + RESET);
+        System.out.println();
 
+        // Caja 1: Vista criptografica
+        String cryptoTitle = "VISTA CRIPTOGRAFICA (solo visible en este proceso)";
+        System.out.println(BOLD + GREEN
+                + "  +--- " + cryptoTitle + " " + repeat("-", Math.max(0, 55 - cryptoTitle.length())) + "+"
+                + RESET);
         if (!text.isEmpty() && !"CLOSE".equals(msgType)) {
-            System.out.println(WHITE + "  Texto    : \"" + text + "\"" + RESET);
+            System.out.println(WHITE + "  | Texto    : \"" + text + "\"" + RESET);
         }
-        System.out.println(GREEN + "  Nonce    : " + formatNonce(nonce) + RESET);
-        System.out.println(GREEN + "  Plaintext: " + truncate(plain, 48) + RESET);
-        System.out.println(GRAY  + "  Cifrado  : " + truncate(cipher, 48) + RESET);
-        System.out.println(GRAY  + "  Tag GCM  : " + truncate(tag, 48) + RESET);
+        System.out.println(GREEN + "  | Nonce    : " + formatNonce(nonce) + RESET);
+        System.out.println(GREEN + "  | Plaintext: " + truncate(plain, 50) + RESET);
+        System.out.println(GRAY  + "  | Cifrado  : " + truncate(cipher, 50) + RESET);
+        System.out.println(GRAY  + "  | Tag GCM  : " + truncate(tag, 50) + RESET);
+        System.out.println(BOLD + GREEN + "  +" + repeat("-", 62) + "+" + RESET);
 
-        System.out.println(BOLD + YELLOW + "  |" + RESET + GRAY + " Frame TCP (" + frameBytes(frame) + " bytes):" + RESET);
+        System.out.println();
+
+        // Caja 2: Vista del atacante
+        String attackTitle = "VISTA DEL ATACANTE (bytes que viajan por la red)";
+        System.out.println(BOLD + GRAY
+                + "  +--- " + attackTitle + " " + repeat("-", Math.max(0, 55 - attackTitle.length())) + "+"
+                + RESET);
+        System.out.println(GRAY + "  | Frame TCP (" + frameBytes(frame) + " bytes):" + RESET);
         if (!frame.isEmpty()) {
             String[] parts = frame.split(" ");
             printFrameLine("  | contador : ", parts, 0, 8);
@@ -213,7 +226,8 @@ public final class SessionObserverApp {
                 printFrameLine("  | tag GCM  : ", parts, parts.length - 16, 16);
             }
         }
-        System.out.println(BOLD + YELLOW + repeat("-", 30) + "+" + repeat("-", 33) + RESET);
+        System.out.println(BOLD + GRAY + "  +" + repeat("-", 62) + "+" + RESET);
+        System.out.println();
     }
 
     // ---- Helpers ------------------------------------------------------------
