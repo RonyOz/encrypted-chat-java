@@ -3,6 +3,7 @@ package com.encryptedchat;
 import com.encryptedchat.crypto.PeerRole;
 import com.encryptedchat.crypto.SecureChannel;
 import com.encryptedchat.crypto.SecureMessage;
+import com.encryptedchat.observer.UdpEventEmitter;
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
@@ -44,11 +45,16 @@ public final class ChatApplication {
             return 0;
         }
 
-        try (Socket socket = openSocket(config)) {
+        try (Socket socket = openSocket(config);
+             UdpEventEmitter emitter = config.observe
+                     ? new UdpEventEmitter(config.role.name()) : null) {
             socket.setSoTimeout(HANDSHAKE_TIMEOUT_MILLIS);
             System.out.println("Negociando clave mediante ECDH (secp256r1)...");
+            if (config.observe) {
+                System.out.println("[--observe activo] enviando eventos al observador en UDP :7777");
+            }
 
-            try (SecureChannel channel = SecureChannel.establish(socket, config.role)) {
+            try (SecureChannel channel = SecureChannel.establish(socket, config.role, emitter)) {
                 socket.setSoTimeout(0);
                 System.out.println("Canal AES-" + channel.getEncryptionKeySizeBits()
                         + "-GCM establecido con " + socket.getRemoteSocketAddress());
@@ -176,6 +182,7 @@ public final class ChatApplication {
         private final int port;
         private final String name;
         private final boolean help;
+        private final boolean observe;
 
         private Config(
                 PeerRole role,
@@ -183,13 +190,15 @@ public final class ChatApplication {
                 String bindAddress,
                 int port,
                 String name,
-                boolean help) {
+                boolean help,
+                boolean observe) {
             this.role = role;
             this.host = host;
             this.bindAddress = bindAddress;
             this.port = port;
             this.name = name;
             this.help = help;
+            this.observe = observe;
         }
 
         private static Config parse(String[] args) {
@@ -197,7 +206,7 @@ public final class ChatApplication {
                 throw new IllegalArgumentException("Debe indicar server o client");
             }
             if (args.length == 1 && ("--help".equals(args[0]) || "-h".equals(args[0]))) {
-                return new Config(null, null, null, DEFAULT_PORT, null, true);
+                return new Config(null, null, null, DEFAULT_PORT, null, true, false);
             }
 
             PeerRole role;
@@ -213,9 +222,14 @@ public final class ChatApplication {
             String bindAddress = "0.0.0.0";
             int port = DEFAULT_PORT;
             String name = System.getProperty("user.name", "Usuario");
+            boolean observe = false;
 
             for (int i = 1; i < args.length; i++) {
                 String option = args[i];
+                if ("--observe".equals(option)) {
+                    observe = true;
+                    continue;
+                }
                 if (i + 1 >= args.length) {
                     throw new IllegalArgumentException("Falta el valor de " + option);
                 }
@@ -250,7 +264,7 @@ public final class ChatApplication {
             if (name.getBytes(StandardCharsets.UTF_8).length > 128) {
                 throw new IllegalArgumentException("El nombre no puede superar 128 bytes UTF-8");
             }
-            return new Config(role, host, bindAddress, port, name, false);
+            return new Config(role, host, bindAddress, port, name, false, observe);
         }
 
         private static String requireText(String option, String value) {
