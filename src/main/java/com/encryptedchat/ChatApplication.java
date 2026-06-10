@@ -115,9 +115,11 @@ public final class ChatApplication {
                 if (message.getType() == SecureMessage.Type.CHAT) {
                     System.out.println(peerName + ": " + message.getText());
                 } else if (message.getType() == SecureMessage.Type.CLOSE) {
-                    closing.set(true);
-                    System.out.println(peerName + " cerro la conversacion.");
-                    channel.sendClose();
+                    boolean weInitiated = closing.getAndSet(true);
+                    if (!weInitiated) {
+                        System.out.println(peerName + " cerro la conversacion.");
+                        channel.sendClose();
+                    }
                     return;
                 } else {
                     throw new GeneralSecurityException(
