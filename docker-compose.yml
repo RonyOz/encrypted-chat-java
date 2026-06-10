@@ -1,0 +1,16 @@
+services:
+  server:
+    build: .
+    command: server --port 5050 --name Alicia
+    ports:
+      - "5050:5050"
+    stdin_open: true
+    tty: true
+
+  client:
+    build: .
+    command: client --host server --port 5050 --name Bruno
+    depends_on:
+      - server
+    stdin_open: true
+    tty: true

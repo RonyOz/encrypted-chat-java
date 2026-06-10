@@ -19,7 +19,10 @@ public final class UdpEventEmitter implements AutoCloseable {
         InetAddress addr = null;
         try {
             s = new DatagramSocket();
-            addr = InetAddress.getLoopbackAddress();
+            String host = System.getenv("OBSERVER_HOST");
+            addr = (host != null && !host.isEmpty())
+                    ? InetAddress.getByName(host)
+                    : InetAddress.getLoopbackAddress();
         } catch (Exception ignored) {
         }
         this.socket = s;
