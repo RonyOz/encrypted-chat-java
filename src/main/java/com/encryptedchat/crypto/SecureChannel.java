@@ -1,5 +1,7 @@
 package com.encryptedchat.crypto;
 
+import com.encryptedchat.observer.EventType;
+import com.encryptedchat.observer.UdpEventEmitter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -7,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -55,6 +58,7 @@ public final class SecureChannel implements Closeable {
     private final PeerRole localRole;
     private final String fingerprint;
     private final Object sendLock = new Object();
+    private final UdpEventEmitter emitter;
     private long sendCounter;
     private long receiveCounter;
     private boolean closeSent;
@@ -65,26 +69,41 @@ public final class SecureChannel implements Closeable {
             DataOutputStream output,
             SecretKeySpec aesKey,
             PeerRole localRole,
-            String fingerprint) {
+            String fingerprint,
+            UdpEventEmitter emitter) {
         this.socket = socket;
         this.input = input;
         this.output = output;
         this.aesKey = aesKey;
         this.localRole = localRole;
         this.fingerprint = fingerprint;
+        this.emitter = emitter;
     }
 
     public static SecureChannel establish(Socket socket, PeerRole localRole)
+            throws IOException, GeneralSecurityException {
+        return establish(socket, localRole, null);
+    }
+
+    public static SecureChannel establish(Socket socket, PeerRole localRole, UdpEventEmitter emitter)
             throws IOException, GeneralSecurityException {
         DataInputStream input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
         DataOutputStream output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
         KeyPair keyPair = generateKeyPair();
+        emit(emitter, EventType.KEY_PAIR_GENERATED,
+                "publicKey", UdpEventEmitter.hex(keyPair.getPublic().getEncoded()));
+
         byte[] localHello = encodeHello(localRole, keyPair.getPublic().getEncoded());
         writeBlob(output, localHello);
         output.flush();
+        emit(emitter, EventType.HELLO_SENT,
+                "bytes", UdpEventEmitter.hex(localHello));
 
         byte[] peerHello = readBlob(input, MAX_HELLO_LENGTH, "saludo ECDH");
+        emit(emitter, EventType.HELLO_RECEIVED,
+                "bytes", UdpEventEmitter.hex(peerHello));
+
         DecodedHello decodedPeer = decodeHello(peerHello);
         if (decodedPeer.role != localRole.opposite()) {
             throw new GeneralSecurityException("Ambos extremos intentaron usar el mismo rol");
@@ -95,21 +114,36 @@ public final class SecureChannel implements Closeable {
                 ? concatenate(localHello, peerHello)
                 : concatenate(peerHello, localHello);
         byte[] transcriptHash = MessageDigest.getInstance("SHA-256").digest(transcript);
+        emit(emitter, EventType.TRANSCRIPT_HASH,
+                "hash", UdpEventEmitter.hex(transcriptHash));
 
         KeyAgreement agreement = KeyAgreement.getInstance("ECDH");
         agreement.init(keyPair.getPrivate());
         agreement.doPhase(peerPublicKey, true);
         byte[] sharedSecret = agreement.generateSecret();
+        emit(emitter, EventType.ECDH_SECRET,
+                "secret", UdpEventEmitter.hex(Arrays.copyOf(sharedSecret, sharedSecret.length)),
+                "note", "NUNCA sale por la red");
+
         byte[] pseudoRandomKey = Hkdf.extract(transcriptHash, sharedSecret);
+        emit(emitter, EventType.HKDF_EXTRACT,
+                "prk", UdpEventEmitter.hex(Arrays.copyOf(pseudoRandomKey, pseudoRandomKey.length)));
+
         byte[] aesKeyBytes = Hkdf.expand(pseudoRandomKey, HKDF_INFO, AES_KEY_BYTES);
+        emit(emitter, EventType.AES_KEY_DERIVED,
+                "key", UdpEventEmitter.hex(Arrays.copyOf(aesKeyBytes, aesKeyBytes.length)));
+
         byte[] confirmationKey = Hkdf.expand(
                 pseudoRandomKey, CONFIRMATION_INFO, CONFIRMATION_BYTES);
+        emit(emitter, EventType.CONFIRMATION_KEY_DERIVED,
+                "key", UdpEventEmitter.hex(Arrays.copyOf(confirmationKey, confirmationKey.length)));
 
         try {
-            confirmKey(output, input, confirmationKey, transcript, localRole);
+            confirmKey(output, input, confirmationKey, transcript, localRole, emitter);
             String fingerprint = createFingerprint(aesKeyBytes, transcriptHash);
+            emit(emitter, EventType.FINGERPRINT, "value", fingerprint);
             SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-            return new SecureChannel(socket, input, output, aesKey, localRole, fingerprint);
+            return new SecureChannel(socket, input, output, aesKey, localRole, fingerprint, emitter);
         } finally {
             Arrays.fill(sharedSecret, (byte) 0);
             Arrays.fill(pseudoRandomKey, (byte) 0);
@@ -188,7 +222,18 @@ public final class SecureChannel implements Closeable {
         if (type == SecureMessage.Type.CLOSE && payload.length != 0) {
             throw new GeneralSecurityException("El mensaje de cierre contiene datos inesperados");
         }
-        return new SecureMessage(type, decodeUtf8(payload));
+        SecureMessage msg = new SecureMessage(type, decodeUtf8(payload));
+
+        emit(emitter, EventType.MSG_RECEIVED,
+                "counter", String.valueOf(receiveCounter - 1),
+                "msgType", type.name(),
+                "text", escapeJson(msg.getText()),
+                "nonce", UdpEventEmitter.hex(nonce),
+                "ciphertext", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, 0, encrypted.length - GCM_TAG_BYTES)),
+                "tag", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, encrypted.length - GCM_TAG_BYTES, encrypted.length)),
+                "plaintext", UdpEventEmitter.hexPlain(plaintext));
+
+        return msg;
     }
 
     private void send(SecureMessage.Type type, String text)
@@ -219,11 +264,35 @@ public final class SecureChannel implements Closeable {
         cipher.updateAAD(aadFor(nonce));
         byte[] encrypted = cipher.doFinal(plaintext);
 
+        ByteBuffer frame = ByteBuffer.allocate(8 + 4 + encrypted.length);
+        frame.putLong(sendCounter);
+        frame.putInt(encrypted.length);
+        frame.put(encrypted);
+
         output.writeLong(sendCounter);
         output.writeInt(encrypted.length);
         output.write(encrypted);
         output.flush();
+
+        emit(emitter, EventType.MSG_SENT,
+                "counter", String.valueOf(sendCounter),
+                "msgType", type.name(),
+                "text", escapeJson(text),
+                "nonce", UdpEventEmitter.hex(nonce),
+                "plaintext", UdpEventEmitter.hexPlain(plaintext),
+                "ciphertext", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, 0, encrypted.length - GCM_TAG_BYTES)),
+                "tag", UdpEventEmitter.hexPlain(Arrays.copyOfRange(encrypted, encrypted.length - GCM_TAG_BYTES, encrypted.length)),
+                "frame", UdpEventEmitter.hexPlain(frame.array()));
+
         incrementSendCounter();
+    }
+
+    private static void emit(UdpEventEmitter emitter, EventType type, String... keyValues) {
+        if (emitter != null) emitter.emit(type, keyValues);
+    }
+
+    private static String escapeJson(String text) {
+        return text.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     private static KeyPair generateKeyPair() throws GeneralSecurityException {
@@ -302,15 +371,22 @@ public final class SecureChannel implements Closeable {
             DataInputStream input,
             byte[] confirmationKey,
             byte[] transcript,
-            PeerRole localRole) throws IOException, GeneralSecurityException {
+            PeerRole localRole,
+            UdpEventEmitter emitter) throws IOException, GeneralSecurityException {
         byte[] localConfirmation = confirmationMac(confirmationKey, transcript, localRole);
         byte[] peerConfirmation = new byte[CONFIRMATION_BYTES];
         byte[] expected = confirmationMac(confirmationKey, transcript, localRole.opposite());
         try {
+            emit(emitter, EventType.CONFIRMATION_SENT,
+                    "hmac", UdpEventEmitter.hex(localConfirmation));
             output.write(localConfirmation);
             output.flush();
             input.readFully(peerConfirmation);
-            if (!MessageDigest.isEqual(peerConfirmation, expected)) {
+            boolean valid = MessageDigest.isEqual(peerConfirmation, expected);
+            emit(emitter, EventType.CONFIRMATION_RECEIVED,
+                    "hmac", UdpEventEmitter.hex(peerConfirmation),
+                    "valid", String.valueOf(valid));
+            if (!valid) {
                 throw new GeneralSecurityException("Fallo la confirmacion de la clave compartida");
             }
         } finally {
@@ -427,4 +503,3 @@ public final class SecureChannel implements Closeable {
         }
     }
 }
-
